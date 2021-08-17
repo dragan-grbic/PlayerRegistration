@@ -1,0 +1,118 @@
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.ServiceFabric.Services.Client;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.Client;
+using Microsoft.ServiceFabric.Services.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using Narde.Interfaces;
+
+
+namespace PlayerService
+{
+    /// <summary>
+    /// An instance of this class is created for each service replica by the Service Fabric runtime.
+    /// </summary>
+    internal sealed class PlayerService : StatefulService, IPlayerService
+    {
+        public PlayerService(StatefulServiceContext context)
+            : base(context)
+        { }
+
+        /// <summary>
+        /// Optional override to create listeners (e.g., HTTP, Service Remoting, WCF, etc.) for this service replica to handle client or user requests.
+        /// </summary>
+        /// <remarks>
+        /// For more information on service communication, see https://aka.ms/servicefabricservicecommunication
+        /// </remarks>
+        /// <returns>A collection of listeners.</returns>
+        protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
+        {
+            return this.CreateServiceRemotingReplicaListeners();
+        }
+
+        private Task<IReliableDictionary2<Guid, string>> GetPlayerDict()
+        {
+            return StateManager.GetOrAddAsync<IReliableDictionary2<Guid, string>>("dict_players");
+        }
+
+        public async Task<string> AddPlayer(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("Player name must be provided.");
+            }
+
+            var dictPlayers = await GetPlayerDict();
+            var uuid = Guid.NewGuid();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                
+                await dictPlayers.AddAsync(tx, uuid, name);
+                await tx.CommitAsync();
+                ServiceEventSource.Current.ServiceMessage(Context, "Created user {0} with name {1}", uuid.ToString(), name);
+            }
+            return uuid.ToString();
+        }
+
+        public async Task<string> DeletePlayer(string uuid)
+        {
+            if (string.IsNullOrEmpty(uuid))
+            {
+                throw new ArgumentException("Player unique id must be provided.");
+            }
+
+            var dictPlayers = await GetPlayerDict();
+
+            using (var tx = StateManager.CreateTransaction())
+            {
+                var _uuid = Guid.Parse(uuid);
+                var result = await dictPlayers.TryRemoveAsync(tx, _uuid);
+                await tx.CommitAsync();
+
+                if (!result.HasValue)
+                {
+                    throw new ArgumentException("Player with given UUID not found.");
+                }
+                ServiceEventSource.Current.ServiceMessage(Context, "Deleted user {0} with name {1}", uuid, result.Value);
+                return result.Value;
+
+            }
+        }
+
+        Task<IEnumerable<KeyValuePair<Guid, string>>> IPlayerService.GetPlayersOnline()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<KeyValuePair<Guid, string>>> GetPlayers()
+        {
+            List<KeyValuePair<Guid, string>> playerData = new List<KeyValuePair<Guid, string>>();
+            var dictPlayers = await GetPlayerDict();
+            using (var tx = StateManager.CreateTransaction())
+            {
+                Microsoft.ServiceFabric.Data.IAsyncEnumerator<KeyValuePair<Guid, string>> players
+                    = (await dictPlayers.CreateEnumerableAsync(tx)).GetAsyncEnumerator();
+
+                //await tx.CommitAsync();
+
+                while (await players.MoveNextAsync(CancellationToken.None))
+                {
+                    ServiceEventSource.Current.ServiceMessage(Context, "Fetched user {0} with name {1}", players.Current.Key, players.Current.Value);
+                    playerData.Add(players.Current);
+                }
+
+                await tx.CommitAsync();
+
+            }
+
+            return playerData;
+            
+        }
+    }
+}

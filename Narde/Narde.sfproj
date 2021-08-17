@@ -36,7 +36,7 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GameStateService\GameStateService.csproj" />
+    <ProjectReference Include="..\Services\PlayerService\PlayerService.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <PropertyGroup>

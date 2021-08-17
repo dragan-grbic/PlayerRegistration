@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Runtime;
 
-namespace GameStateService
+namespace PlayerService
 {
-    [EventSource(Name = "MyCompany-Narde-GameStateService")]
+    [EventSource(Name = "MyCompany-Narde-PlayerService")]
     internal sealed class ServiceEventSource : EventSource
     {
         public static readonly ServiceEventSource Current = new ServiceEventSource();

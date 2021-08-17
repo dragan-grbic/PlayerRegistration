@@ -7,10 +7,15 @@
     <ServerGarbageCollection>True</ServerGarbageCollection>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <TargetLatestRuntimePatch>False</TargetLatestRuntimePatch>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="5.1.316" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services" Version="5.1.321" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Interfaces\NardeInterfaces\NardeInterfaces.csproj" />
   </ItemGroup>
 
 </Project>
