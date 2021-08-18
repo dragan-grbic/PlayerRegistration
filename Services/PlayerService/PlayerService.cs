@@ -10,6 +10,7 @@ using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using Narde.CommonTypes;
 using Narde.Interfaces;
 
 
@@ -85,14 +86,14 @@ namespace PlayerService
             }
         }
 
-        Task<IEnumerable<KeyValuePair<Guid, string>>> IPlayerService.GetPlayersOnline()
+        public async Task<IEnumerable<PlayerData>> GetPlayersOnline()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<KeyValuePair<Guid, string>>> GetPlayers()
+        public async Task<IEnumerable<PlayerData>> GetPlayers()
         {
-            List<KeyValuePair<Guid, string>> playerData = new List<KeyValuePair<Guid, string>>();
+            List<PlayerData> playerData = new List<PlayerData>();
             var dictPlayers = await GetPlayerDict();
             using (var tx = StateManager.CreateTransaction())
             {
@@ -104,7 +105,7 @@ namespace PlayerService
                 while (await players.MoveNextAsync(CancellationToken.None))
                 {
                     ServiceEventSource.Current.ServiceMessage(Context, "Fetched user {0} with name {1}", players.Current.Key, players.Current.Value);
-                    playerData.Add(players.Current);
+                    playerData.Add(new PlayerData(players.Current.Key, players.Current.Value));
                 }
 
                 await tx.CommitAsync();

@@ -2,6 +2,7 @@
 using Microsoft.ServiceFabric.Services.Remoting;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Narde.CommonTypes;
 
 namespace Narde.Interfaces
 {
@@ -11,12 +12,12 @@ namespace Narde.Interfaces
         /// Get all registered players.
         /// </summary>
         /// <returns>List of all registered p[layers.</returns>
-        Task<IEnumerable<KeyValuePair<Guid, string>>> GetPlayers();
+        Task<IEnumerable<PlayerData>> GetPlayers();
         /// <summary>
         /// Get all players currently online.
         /// </summary>
         /// <returns>List of all online players.</returns>
-        Task<IEnumerable<KeyValuePair<Guid, string>>> GetPlayersOnline();
+        Task<IEnumerable<PlayerData>> GetPlayersOnline();
         /// <summary>
         /// Add new player.
         /// </summary>

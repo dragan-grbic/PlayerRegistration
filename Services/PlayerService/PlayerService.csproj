@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\CommonTypes\CommonTypes.csproj" />
     <ProjectReference Include="..\..\Interfaces\NardeInterfaces\NardeInterfaces.csproj" />
   </ItemGroup>
 

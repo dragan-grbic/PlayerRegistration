@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
+using Narde.CommonTypes;
 using Narde.Interfaces;
 
 namespace PlayerServiceConsoleTestApp
@@ -27,9 +28,9 @@ namespace PlayerServiceConsoleTestApp
 
             foreach(var p in players)
             {
-                if (!String.IsNullOrEmpty(p.Key.ToString()) && !String.IsNullOrEmpty(p.Value))
+                if (!String.IsNullOrEmpty(p.UUID.ToString()) && !String.IsNullOrEmpty(p.Name))
                 {
-                    Console.WriteLine("Player {0} with name {1}", p.Key.ToString(), p.Value);
+                    Console.WriteLine("Player {0} with name {1}", p.UUID.ToString(), p.Name);
                 }
                 else
                 {
@@ -47,9 +48,9 @@ namespace PlayerServiceConsoleTestApp
 
             foreach (var p in players)
             {
-                if (!String.IsNullOrEmpty(p.Key.ToString()) && !String.IsNullOrEmpty(p.Value))
+                if (!String.IsNullOrEmpty(p.UUID.ToString()) && !String.IsNullOrEmpty(p.Name))
                 {
-                    Console.WriteLine("Player {0} with name {1}", p.Key.ToString(), p.Value);
+                    Console.WriteLine("Player {0} with name {1}", p.UUID.ToString(), p.Name);
                 }
                 else
                 {

@@ -25,4 +25,8 @@
     <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="5.1.321" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\CommonTypes\CommonTypes.csproj" />
+  </ItemGroup>
+
 </Project>
