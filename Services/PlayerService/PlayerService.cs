@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
@@ -13,16 +14,26 @@ using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 using Narde.CommonTypes;
 using Narde.Interfaces;
 
-
+[assembly: InternalsVisibleTo("PlayerServiceUnitTest")]
 namespace PlayerService
 {
+    internal static class PlayerServiceConstants
+    {
+        public const string StateManagerDictionaryName = "dict_players";
+    }
     /// <summary>
     /// An instance of this class is created for each service replica by the Service Fabric runtime.
     /// </summary>
     internal sealed class PlayerService : StatefulService, IPlayerService
     {
+        
+
         public PlayerService(StatefulServiceContext context)
             : base(context)
+        { }
+
+        public PlayerService(StatefulServiceContext context, IReliableStateManagerReplica reliableStateManagerReplica)
+            : base(context, reliableStateManagerReplica)
         { }
 
         /// <summary>
@@ -39,7 +50,7 @@ namespace PlayerService
 
         private Task<IReliableDictionary2<Guid, string>> GetPlayerDict()
         {
-            return StateManager.GetOrAddAsync<IReliableDictionary2<Guid, string>>("dict_players");
+            return StateManager.GetOrAddAsync<IReliableDictionary2<Guid, string>>(PlayerServiceConstants.StateManagerDictionaryName);
         }
 
         public async Task<string> AddPlayer(string name)
