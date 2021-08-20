@@ -103,14 +103,11 @@ namespace PlayerServiceUnitTest
             string[] playerNames = new[] { "Player1", "Player2", "Player3" };
 
             var context = MockStatefulServiceContextFactory.Default;
-            //var stateManagerList = new List<MockReliableStateManager>();
 
             var stateManager = new MockReliableStateManager();
 
             Func<StatefulServiceContext, TransactedConcurrentDictionary<Uri, IReliableState>, IReliableStateManagerReplica2> createStateManagerReplica = (StatefulServiceContext ctx, TransactedConcurrentDictionary<Uri, IReliableState> states) =>
             {
-                //stateManagerList.Add(new MockReliableStateManager());
-                //return stateManagerList.Last();
                 return stateManager;
             };
 
@@ -139,7 +136,6 @@ namespace PlayerServiceUnitTest
             Assert.Contains(playerNames, n => n == players[1].Name);
 
             //verify the data was saved against the reliable dictionary
-            //var stateManager = stateManagerList[0];
             var dictionary = await stateManager.GetOrAddAsync<IReliableDictionary<Guid, string>>(PlayerServiceConstants.StateManagerDictionaryName);
             using (var tx = stateManager.CreateTransaction())
             {
