@@ -14,19 +14,16 @@ using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 using Narde.CommonTypes;
 using Narde.Interfaces;
 
-[assembly: InternalsVisibleTo("PlayerServiceUnitTest")]
 namespace PlayerService
 {
-    internal static class PlayerServiceConstants
-    {
-        public const string StateManagerDictionaryName = "dict_players";
-    }
     /// <summary>
     /// An instance of this class is created for each service replica by the Service Fabric runtime.
     /// </summary>
-    internal sealed class PlayerService : StatefulService, IPlayerService
+    //TODO: Remove IPlayerService interface once PlayerOrchestrator is done.
+    public sealed class PlayerService : StatefulService, IPlayerServiceInternal
     {
-        
+
+        public const string StateManagerDictionaryName = "dict_players";
 
         public PlayerService(StatefulServiceContext context)
             : base(context)
@@ -50,56 +47,13 @@ namespace PlayerService
 
         private Task<IReliableDictionary2<Guid, string>> GetPlayerDict()
         {
-            return StateManager.GetOrAddAsync<IReliableDictionary2<Guid, string>>(PlayerServiceConstants.StateManagerDictionaryName);
-        }
-
-        public async Task<string> AddPlayer(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentException("Player name must be provided.");
-            }
-
-            var dictPlayers = await GetPlayerDict();
-            var uuid = Guid.NewGuid();
-            using (var tx = StateManager.CreateTransaction())
-            {
-                
-                await dictPlayers.AddAsync(tx, uuid, name);
-                await tx.CommitAsync();
-                ServiceEventSource.Current.ServiceMessage(Context, "Created user {0} with name {1}", uuid.ToString(), name);
-            }
-            return uuid.ToString();
-        }
-
-        public async Task<string> DeletePlayer(string uuid)
-        {
-            if (string.IsNullOrEmpty(uuid))
-            {
-                throw new ArgumentException("Player unique id must be provided.");
-            }
-
-            var dictPlayers = await GetPlayerDict();
-
-            using (var tx = StateManager.CreateTransaction())
-            {
-                var _uuid = Guid.Parse(uuid);
-                var result = await dictPlayers.TryRemoveAsync(tx, _uuid);
-                await tx.CommitAsync();
-
-                if (!result.HasValue)
-                {
-                    throw new ArgumentException("Player with given UUID not found.");
-                }
-                ServiceEventSource.Current.ServiceMessage(Context, "Deleted user {0} with name {1}", uuid, result.Value);
-                return result.Value;
-
-            }
+            return StateManager.GetOrAddAsync<IReliableDictionary2<Guid, string>>(StateManagerDictionaryName);
         }
 
         public async Task<IEnumerable<PlayerData>> GetPlayersOnline()
         {
-            throw new NotImplementedException();
+            //TODO: Replace with real implementation
+            return await GetPlayers();
         }
 
         public async Task<IEnumerable<PlayerData>> GetPlayers()
@@ -125,6 +79,46 @@ namespace PlayerService
 
             return playerData;
             
+        }
+
+        public async Task<Guid> AddPlayer(Guid guid, string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("Player name must be provided.");
+            }
+
+            var dictPlayers = await GetPlayerDict();
+
+            using (var tx = StateManager.CreateTransaction())
+            {
+
+                await dictPlayers.AddAsync(tx, guid, name);
+                await tx.CommitAsync();
+                ServiceEventSource.Current.ServiceMessage(Context, "Created user {0} with name {1}", guid.ToString(), name);
+            }
+            return guid;
+        }
+
+        public async Task<string> DeletePlayer(Guid guid)
+        {
+            if (Guid.Empty == guid)
+            {
+                throw new ArgumentException("Player unique id must be provided and cannot be empty.");
+            }
+
+            var dictPlayers = await GetPlayerDict();
+
+            using var tx = StateManager.CreateTransaction();
+            var result = await dictPlayers.TryRemoveAsync(tx, guid);
+            await tx.CommitAsync();
+
+            if (!result.HasValue)
+            {
+                throw new ArgumentException("Player with given UUID not found.");
+            }
+            ServiceEventSource.Current.ServiceMessage(Context, "Deleted user {0} with name {1}", guid, result.Value);
+            return result.Value;
         }
     }
 }

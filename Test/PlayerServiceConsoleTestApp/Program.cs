@@ -10,12 +10,13 @@ namespace PlayerServiceConsoleTestApp
 {
     class Program
     {
-        private static readonly Uri playerServiceUri = new Uri("fabric:/Narde/PlayerService");
+        private static readonly string DefaultOrchestartorUri = "fabric:/Narde/PlayerOrchestrator";
+        private static readonly Uri playerServiceUri = new Uri(DefaultOrchestartorUri);
         static async Task Main(string[] args)
         {
             string[] playerNames = new []{ "Player2", "Player3" };
             IPlayerService playerService 
-                = ServiceProxy.Create<IPlayerService>(playerServiceUri, new ServicePartitionKey(1));
+                = ServiceProxy.Create<IPlayerService>(playerServiceUri);
 
             var player1guid = await playerService.AddPlayer("Player1");
 

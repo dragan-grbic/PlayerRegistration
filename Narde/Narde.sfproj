@@ -36,6 +36,7 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Services\PlayerOrchestrator\PlayerOrchestrator.csproj" />
     <ProjectReference Include="..\Services\PlayerService\PlayerService.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

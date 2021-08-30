@@ -15,13 +15,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NardeInterfaces", "Interfac
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerServiceConsoleTestApp", "Test\PlayerServiceConsoleTestApp\PlayerServiceConsoleTestApp.csproj", "{0DDBAE91-1708-4113-91F6-F677197AAA94}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonTypes", "Common\CommonTypes\CommonTypes.csproj", "{66D384CA-7AF4-48E7-AC3B-3B43191EE13D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonTypes", "Common\CommonTypes\CommonTypes.csproj", "{66D384CA-7AF4-48E7-AC3B-3B43191EE13D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{3AAAC87D-D199-42E7-8BC7-EAA202F0D7A7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit", "Unit", "{A6D40D36-AAC3-47E2-B10A-E1EA8318239C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerServiceUnitTest", "Test\Unit\PlayerServiceUnitTest\PlayerServiceUnitTest.csproj", "{C26C5F59-AE65-486D-ABFA-857302CE613B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerServiceUnitTest", "Test\Unit\PlayerServiceUnitTest\PlayerServiceUnitTest.csproj", "{C26C5F59-AE65-486D-ABFA-857302CE613B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerOrchestrator", "Services\PlayerOrchestrator\PlayerOrchestrator.csproj", "{6EDA1508-2292-4AC7-B895-D43584365B0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerOrchestratorUnitTest", "Test\Unit\PlayerOrchestratorUnitTest\PlayerOrchestratorUnitTest.csproj", "{6F68C417-1C71-4446-9999-AFCBB10D3298}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,6 +83,22 @@ Global
 		{C26C5F59-AE65-486D-ABFA-857302CE613B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C26C5F59-AE65-486D-ABFA-857302CE613B}.Release|x64.ActiveCfg = Release|Any CPU
 		{C26C5F59-AE65-486D-ABFA-857302CE613B}.Release|x64.Build.0 = Release|Any CPU
+		{6EDA1508-2292-4AC7-B895-D43584365B0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EDA1508-2292-4AC7-B895-D43584365B0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EDA1508-2292-4AC7-B895-D43584365B0F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6EDA1508-2292-4AC7-B895-D43584365B0F}.Debug|x64.Build.0 = Debug|Any CPU
+		{6EDA1508-2292-4AC7-B895-D43584365B0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EDA1508-2292-4AC7-B895-D43584365B0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EDA1508-2292-4AC7-B895-D43584365B0F}.Release|x64.ActiveCfg = Release|Any CPU
+		{6EDA1508-2292-4AC7-B895-D43584365B0F}.Release|x64.Build.0 = Release|Any CPU
+		{6F68C417-1C71-4446-9999-AFCBB10D3298}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F68C417-1C71-4446-9999-AFCBB10D3298}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F68C417-1C71-4446-9999-AFCBB10D3298}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6F68C417-1C71-4446-9999-AFCBB10D3298}.Debug|x64.Build.0 = Debug|Any CPU
+		{6F68C417-1C71-4446-9999-AFCBB10D3298}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F68C417-1C71-4446-9999-AFCBB10D3298}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F68C417-1C71-4446-9999-AFCBB10D3298}.Release|x64.ActiveCfg = Release|Any CPU
+		{6F68C417-1C71-4446-9999-AFCBB10D3298}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +108,7 @@ Global
 		{66D384CA-7AF4-48E7-AC3B-3B43191EE13D} = {974D87C7-6F10-4704-BEB3-4E4AE78609DC}
 		{A6D40D36-AAC3-47E2-B10A-E1EA8318239C} = {3AAAC87D-D199-42E7-8BC7-EAA202F0D7A7}
 		{C26C5F59-AE65-486D-ABFA-857302CE613B} = {A6D40D36-AAC3-47E2-B10A-E1EA8318239C}
+		{6F68C417-1C71-4446-9999-AFCBB10D3298} = {A6D40D36-AAC3-47E2-B10A-E1EA8318239C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7769A019-93C8-484D-BF88-8C9ED737999F}
