@@ -44,11 +44,17 @@ namespace PlayerOrchestrator
                 new Microsoft.ServiceFabric.Services.Client.ServicePartitionKey(partitionKey));
         }
 
+        int GetPartitionKey(Guid uuid)
+        {
+            return (BitConverter.ToInt32(Guid.NewGuid().ToByteArray(), 0) & 0x7fff) % Constants.partitionCount;
+        }
+
         public async Task<string> AddPlayer(string name)
         {
             var uuid = Guid.NewGuid();
-            IPlayerServiceInternal proxy = GetServiceProxy(uuid.GetHashCode() % Constants.partitionCount);
-            
+            ServiceEventSource.Current.ServiceMessage(Context, "Adding player {0} to partition {1}", name, GetPartitionKey(uuid));
+            IPlayerServiceInternal proxy = GetServiceProxy(GetPartitionKey(uuid));
+           
             return (await proxy.AddPlayer(uuid, name)).ToString();
         }
 
@@ -59,23 +65,15 @@ namespace PlayerOrchestrator
                 throw new ArgumentException("Player unique id must be provided and cannot be empty.");
             }
             Guid guid = Guid.Parse(uuid);
-            IPlayerServiceInternal proxy = GetServiceProxy(guid.GetHashCode() % Constants.partitionCount);
+            ServiceEventSource.Current.ServiceMessage(Context, "Delete player {0} from partition {1}", uuid, GetPartitionKey(guid));
+            IPlayerServiceInternal proxy = GetServiceProxy(GetPartitionKey(guid));
 
             return await proxy.DeletePlayer(guid);
         }
-
         public async Task<IEnumerable<PlayerData>> GetPlayers()
         {
-            List<PlayerData> playerDataList = new List<PlayerData>();
-            var partitions = Enumerable.Range(0, Constants.partitionCount).Select(n => GetServiceProxy(n));
-            var playerData = await Task.WhenAll(partitions.Select(p => p.GetPlayers()));
-
-            foreach(var p in playerData)
-            {
-                playerDataList.AddRange(p);
-            }
-
-            return playerDataList;
+            int partition = new Random().Next(Constants.partitionCount);
+            return await GetServiceProxy(partition).GetPlayers();
         }
 
         public Task<IEnumerable<PlayerData>> GetPlayersOnline()
