@@ -14,14 +14,28 @@ namespace PlayerServiceConsoleTestApp
         private static readonly Uri playerServiceUri = new Uri(DefaultOrchestartorUri);
         static async Task Main(string[] args)
         {
-            string[] playerNames = new []{ "Player2", "Player3" };
-            IPlayerService playerService 
-                = ServiceProxy.Create<IPlayerService>(playerServiceUri);
 
-            var player1guid = await playerService.AddPlayer("Player1");
+            if (args.Length != 2)
+            {
+                Console.WriteLine("Usage: \tTestApp.exe <prefix> <count>");
+                return;
+            }
 
-            Console.WriteLine("Player1 added with uuid {0}", player1guid);
-            await Task.WhenAll(playerNames.Select(n => playerService.AddPlayer(n)));
+            //Console.ReadKey();
+
+            string prefix = args[0];
+            int count = int.Parse(args[1]);
+
+            string[] playerNames = Enumerable.Range(2, count - 1).Select(n => prefix + n.ToString()).ToArray();
+            IPlayerService playerService = ServiceProxy.Create<IPlayerService>(playerServiceUri);
+
+            var player1guid = await playerService.AddPlayer(prefix + "1");
+
+            Console.WriteLine(prefix + "1 added with uuid {0}", player1guid);
+            await Task.WhenAll(playerNames.Select(n => {
+                Console.WriteLine("Adding player {0}", n);
+                return playerService.AddPlayer(n);
+            }));
 
             Console.WriteLine("Players added");
 
