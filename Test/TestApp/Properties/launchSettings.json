@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PlayerServiceConsoleTestApp": {
+      "commandName": "Project",
+      "commandLineArgs": "test 5"
+    }
+  }
+}
