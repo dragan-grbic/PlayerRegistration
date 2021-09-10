@@ -1,9 +1,10 @@
-# Narde (board game)
-## Rules 
-- See https://mastersofbackgammon.net/how-to-play-narde/
+# PlayerRegistration
+
 
 ## Architecture
-- Statefull **GameStateService** keeps the active game state
-- Statefull **GameArchiveService** keeps archive of completed games
 - Statefull **PlayerService** keeps player data
-- 
+    - Partitioned
+- Stateless **PlayerOrchestrator** 
+  - Forward requests to appropriate partition
+  - Scale in/out based on request per minute metrics
+
