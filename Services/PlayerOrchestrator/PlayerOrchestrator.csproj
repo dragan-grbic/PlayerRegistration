@@ -7,7 +7,6 @@
     <ServerGarbageCollection>True</ServerGarbageCollection>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <TargetLatestRuntimePatch>False</TargetLatestRuntimePatch>
-    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\CommonTypes\CommonTypes.csproj" />
     <ProjectReference Include="..\..\Interfaces\PlayerRegistrationInterfaces\PlayerRegistrationInterfaces.csproj" />
   </ItemGroup>
 
