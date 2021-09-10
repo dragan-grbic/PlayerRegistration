@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "StressTest": {
+      "commandName": "Project",
+      "commandLineArgs": "20 100"
+    }
+  }
+}
