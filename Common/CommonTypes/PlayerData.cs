@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Narde.CommonTypes
+namespace PlayerRegistration.CommonTypes
 {
     [Serializable()]
     public struct PlayerData
     {
-        public PlayerData(Guid guid, string name)
+        public PlayerData(string key, string name)
         {
-            UUID = guid;
+            Key = key;
             Name = name;
         }
-        public Guid UUID { get; }
+        public string Key { get; }
         public string Name { get; }
     }
 }
