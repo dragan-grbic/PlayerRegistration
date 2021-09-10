@@ -1,4 +1,4 @@
-using Narde.Interfaces;
+using PlayerRegistration.Interfaces;
 using ServiceFabric.Mocks;
 using System;
 using Xunit;
@@ -31,14 +31,14 @@ namespace PlayerServiceUnitTest
 
             const string playerName = "test";
 
-            var creationGuid = Guid.NewGuid();
+            var creationKey = Guid.NewGuid().ToString();
             //create state
-            var playerGuid = await service.AddPlayer(creationGuid, playerName);
+            var playerKey = await service.AddPlayer(creationKey, playerName);
             
             //get state
-            var dictionary = await stateManager.TryGetAsync<IReliableDictionary<Guid, string>>(PlayerService.StateManagerDictionaryName);
+            var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, string>>(PlayerService.StateManagerDictionaryName);
             using var tx = stateManager.CreateTransaction();
-            var actual = (await dictionary.Value.TryGetValueAsync(tx, playerGuid)).Value;
+            var actual = (await dictionary.Value.TryGetValueAsync(tx, playerKey)).Value;
             await tx.CommitAsync();
 
             Assert.Equal(playerName, actual);
@@ -54,32 +54,32 @@ namespace PlayerServiceUnitTest
             string[] playerNames = new[]{ "Player1", "Player2", "Player3" };
 
             //create state
-            await Task.WhenAll(playerNames.Select(n => service.AddPlayer(Guid.NewGuid(), n)));
+            await Task.WhenAll(playerNames.Select(n => service.AddPlayer(Guid.NewGuid().ToString(), n)));
 
             //get players
             var players = (await service.GetPlayers()).ToList();
 
             Assert.Equal(playerNames.Count(), players.ToArray().Count());
 
-            List<Guid> playerGuids = new List<Guid>();
+            List<string> playerKeys = new List<string>();
 
             foreach (var p in players)
             {
-                playerGuids.Add(p.UUID);
+                playerKeys.Add(p.Key);
             }
 
             //get state
-            var dictionary = await stateManager.TryGetAsync<IReliableDictionary<Guid, string>>(PlayerService.StateManagerDictionaryName);
+            var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, string>>(PlayerService.StateManagerDictionaryName);
             using (var tx = stateManager.CreateTransaction())
             {
-                var actual = (await dictionary.Value.TryGetValueAsync(tx, playerGuids[0])).Value;
+                var actual = (await dictionary.Value.TryGetValueAsync(tx, playerKeys[0])).Value;
                 await tx.CommitAsync();
 
                 Assert.Equal(players[0].Name, actual);
             }
 
             // delete player 1
-            var player1name = await service.DeletePlayer(playerGuids[0]);
+            var player1name = await service.DeletePlayer(playerKeys[0]);
 
             Assert.Equal(player1name, players[0].Name);
 
@@ -87,7 +87,7 @@ namespace PlayerServiceUnitTest
 
             Assert.Equal(playerNames.Count() - 1, playersAfterDelete.ToArray().Count());
 
-            Assert.DoesNotContain(playersAfterDelete, p => p.UUID == playerGuids[0]);
+            Assert.DoesNotContain(playersAfterDelete, p => p.Key == playerKeys[0]);
 
         }
 
@@ -112,10 +112,10 @@ namespace PlayerServiceUnitTest
             await replicaSet.AddReplicaAsync(ReplicaRole.ActiveSecondary, 3);
 
             //insert data
-            var guids = new List<Guid>();
+            var keys = new List<string>();
             foreach (var p in playerNames)
             {
-                guids.Add(await replicaSet.Primary.ServiceInstance.AddPlayer(Guid.NewGuid(), p));
+                keys.Add(await replicaSet.Primary.ServiceInstance.AddPlayer(Guid.NewGuid().ToString(), p));
             }
             
             //promote secondary
@@ -126,13 +126,13 @@ namespace PlayerServiceUnitTest
 
             //check data
             Assert.Equal(playerNames.Count(), players.Count);
-            Assert.Contains(guids, g => g == players[0].UUID);
+            Assert.Contains(keys, g => g == players[0].Key);
             Assert.Contains(playerNames, n => n == players[1].Name);
 
             //verify the data was saved against the reliable dictionary
-            var dictionary = await stateManager.GetOrAddAsync<IReliableDictionary<Guid, string>>(PlayerService.StateManagerDictionaryName);
+            var dictionary = await stateManager.GetOrAddAsync<IReliableDictionary<string, string>>(PlayerService.StateManagerDictionaryName);
             using var tx = stateManager.CreateTransaction();
-            var payload = await dictionary.TryGetValueAsync(tx, guids[0]);
+            var payload = await dictionary.TryGetValueAsync(tx, keys[0]);
             Assert.True(payload.HasValue);
             Assert.Equal(playerNames[0], payload.Value);
         }
