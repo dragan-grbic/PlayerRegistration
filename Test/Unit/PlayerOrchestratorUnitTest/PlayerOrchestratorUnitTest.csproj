@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Interfaces\NardeInterfaces\NardeInterfaces.csproj" />
+    <ProjectReference Include="..\..\..\Interfaces\PlayerRegistrationInterfaces\PlayerRegistrationInterfaces.csproj" />
     <ProjectReference Include="..\..\..\Services\PlayerOrchestrator\PlayerOrchestrator.csproj" />
     <ProjectReference Include="..\..\..\Services\PlayerService\PlayerService.csproj" />
   </ItemGroup>

@@ -1,4 +1,4 @@
-using Narde.Interfaces;
+using PlayerRegistration.Interfaces;
 using ServiceFabric.Mocks;
 using System;
 using Xunit;
@@ -13,7 +13,7 @@ namespace PlayerOrchestratorUnitTest
 
     public class TestPlayerOrchestrator
     {
-        public const string MockServiceUri = "fabric:/Mock/Narde/PlayerService";
+        public const string MockServiceUri = "fabric:/Mock/PlayerRegistration/PlayerService";
 
         PlayerOrchestrator CreatePlayerOrchestrator(IReliableStateManagerReplica stateManager)
         {
@@ -35,12 +35,12 @@ namespace PlayerOrchestratorUnitTest
             const string playerName = "test";
 
             //create state
-            var playerGuid = await service.AddPlayer(playerName);
+            var playerKey = await service.AddPlayer(playerName);
 
             //get state
-            var dictionary = await stateManager.TryGetAsync<IReliableDictionary<Guid, string>>(PlayerService.StateManagerDictionaryName);
+            var dictionary = await stateManager.TryGetAsync<IReliableDictionary<string, string>>(PlayerService.StateManagerDictionaryName);
             using var tx = stateManager.CreateTransaction();
-            var actual = (await dictionary.Value.TryGetValueAsync(tx, Guid.Parse(playerGuid))).Value;
+            var actual = (await dictionary.Value.TryGetValueAsync(tx, playerKey)).Value;
             await tx.CommitAsync();
 
             Assert.Equal(playerName, actual);
