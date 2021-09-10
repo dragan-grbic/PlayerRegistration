@@ -1,18 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
-using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-using Narde.CommonTypes;
-using Narde.Interfaces;
+using PlayerRegistration.CommonTypes;
+using PlayerRegistration.Interfaces;
 
 namespace PlayerService
 {
@@ -24,6 +21,8 @@ namespace PlayerService
     {
 
         public const string StateManagerDictionaryName = "dict_players";
+
+        private IReliableDictionary2<string, string> _playerDict = null;
 
         public PlayerService(StatefulServiceContext context)
             : base(context)
@@ -45,24 +44,22 @@ namespace PlayerService
             return this.CreateServiceRemotingReplicaListeners();
         }
 
-        private Task<IReliableDictionary2<Guid, string>> GetPlayerDict()
+        private async Task<IReliableDictionary2<string, string>> GetPlayerDictAsync()
         {
-            return StateManager.GetOrAddAsync<IReliableDictionary2<Guid, string>>(StateManagerDictionaryName);
-        }
-
-        public async Task<IEnumerable<PlayerData>> GetPlayersOnline()
-        {
-            //TODO: Replace with real implementation
-            return await GetPlayers();
+            if (_playerDict == null)
+            {
+                _playerDict = await StateManager.GetOrAddAsync<IReliableDictionary2<string, string>>(StateManagerDictionaryName);
+            }
+            return _playerDict;
         }
 
         public async Task<IEnumerable<PlayerData>> GetPlayers()
         {
             List<PlayerData> playerData = new List<PlayerData>();
-            var dictPlayers = await GetPlayerDict();
+            var dictPlayers = await GetPlayerDictAsync();
             using (var tx = StateManager.CreateTransaction())
             {
-                Microsoft.ServiceFabric.Data.IAsyncEnumerator<KeyValuePair<Guid, string>> players
+                Microsoft.ServiceFabric.Data.IAsyncEnumerator<KeyValuePair<string, string>> players
                     = (await dictPlayers.CreateEnumerableAsync(tx)).GetAsyncEnumerator();
 
                 //await tx.CommitAsync();
@@ -76,49 +73,70 @@ namespace PlayerService
                 await tx.CommitAsync();
 
             }
-
             return playerData;
-            
         }
 
-        public async Task<Guid> AddPlayer(Guid guid, string name)
+        public async Task<string> AddPlayer(string key, string name)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("Player name must be provided.");
             }
 
-            var dictPlayers = await GetPlayerDict();
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentException("The key must be provided.");
+            }
+
+            var dictPlayers = await GetPlayerDictAsync();
 
             using (var tx = StateManager.CreateTransaction())
             {
 
-                await dictPlayers.AddAsync(tx, guid, name);
+                var savedName = await dictPlayers.TryGetValueAsync(tx, key);
                 await tx.CommitAsync();
-                ServiceEventSource.Current.ServiceMessage(Context, "Created user {0} with name {1}", guid.ToString(), name);
+
+                if (savedName.HasValue && savedName.Value != name)
+                {
+                    throw new ArgumentException(String.Format("Duplicate key {0}, names [new: {1}] and [was: {2}] on partition {3}. ", key, name, savedName.Value, Partition.PartitionInfo.Id));
+                }
+                else if (savedName.HasValue && savedName.Value == name)
+                {
+                    throw new ArgumentException(String.Format("User {0} is already present in this dictionary with key {1}. ", name, key));
+                }
+
             }
-            return guid;
+
+            using (var tx = StateManager.CreateTransaction())
+            {
+
+                await dictPlayers.AddAsync(tx, key, name); //.ContinueWith(_ =>  tx.CommitAsync());
+                await tx.CommitAsync();
+                ServiceEventSource.Current.ServiceMessage(Context, "Created user {0} with name {1}", key, name);
+            }
+            return key;
         }
 
-        public async Task<string> DeletePlayer(Guid guid)
+        public async Task<string> DeletePlayer(string key)
         {
-            if (Guid.Empty == guid)
+            if (string.IsNullOrEmpty(key))
             {
                 throw new ArgumentException("Player unique id must be provided and cannot be empty.");
             }
 
-            var dictPlayers = await GetPlayerDict();
+            var dictPlayers = await GetPlayerDictAsync();
 
             using var tx = StateManager.CreateTransaction();
-            var result = await dictPlayers.TryRemoveAsync(tx, guid);
+            var result = await dictPlayers.TryRemoveAsync(tx, key);
             await tx.CommitAsync();
 
             if (!result.HasValue)
             {
                 throw new ArgumentException("Player with given UUID not found.");
             }
-            ServiceEventSource.Current.ServiceMessage(Context, "Deleted user {0} with name {1}", guid, result.Value);
+            ServiceEventSource.Current.ServiceMessage(Context, "Deleted user {0} with name {1}", key, result.Value);
             return result.Value;
         }
+
     }
 }
