@@ -9,7 +9,7 @@ using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace PlayerOrchestrator
 {
-    [EventSource(Name = "MyCompany-Narde-PlayerOrchestrator")]
+    [EventSource(Name = "MyCompany-PlayerRegistration-PlayerOrchestrator")]
 internal sealed class ServiceEventSource : EventSource
 {
     public static readonly ServiceEventSource Current = new ServiceEventSource();
