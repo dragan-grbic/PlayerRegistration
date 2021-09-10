@@ -2,9 +2,9 @@
 using Microsoft.ServiceFabric.Services.Remoting;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Narde.CommonTypes;
+using PlayerRegistration.CommonTypes;
 
-namespace Narde.Interfaces
+namespace PlayerRegistration.Interfaces
 {
     public interface IPlayerService : IService
     {
@@ -13,11 +13,6 @@ namespace Narde.Interfaces
         /// </summary>
         /// <returns>List of all registered p[layers.</returns>
         Task<IEnumerable<PlayerData>> GetPlayers();
-        /// <summary>
-        /// Get all players currently online.
-        /// </summary>
-        /// <returns>List of all online players.</returns>
-        Task<IEnumerable<PlayerData>> GetPlayersOnline();
         /// <summary>
         /// Add new player.
         /// </summary>
