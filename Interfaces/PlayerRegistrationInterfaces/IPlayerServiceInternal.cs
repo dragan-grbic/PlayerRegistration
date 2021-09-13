@@ -20,7 +20,7 @@ namespace PlayerRegistration.Interfaces
         /// </summary>
         /// <param name="key">Unique id of the new player.</param>
         /// <param name="name">Name of the new player.</param>
-        /// <returns>Unique od of newly added player (same as guid param).</returns>
+        /// <returns>Unique id of newly added player (same as guid param).</returns>
         Task<string> AddPlayer(string key, string name);
         /// <summary>
         /// Delete the player.
